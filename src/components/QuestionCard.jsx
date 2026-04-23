@@ -2,21 +2,9 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 
 const slideVariants = {
-  enter: (dir) => ({
-    x: dir > 0 ? "100%" : "-100%",
-    opacity: 0,
-    scale: 0.95,
-  }),
-  center: {
-    x: 0,
-    opacity: 1,
-    scale: 1,
-  },
-  exit: (dir) => ({
-    x: dir > 0 ? "-100%" : "100%",
-    opacity: 0,
-    scale: 0.95,
-  }),
+  enter: (dir) => ({ x: dir > 0 ? "100%" : "-100%", opacity: 0, scale: 0.96 }),
+  center: { x: 0, opacity: 1, scale: 1 },
+  exit: (dir) => ({ x: dir > 0 ? "-100%" : "100%", opacity: 0, scale: 0.96 }),
 };
 
 export default function QuestionCard({
@@ -27,8 +15,11 @@ export default function QuestionCard({
   onSkip,
   direction,
   isOptional,
+  questionIndex = 0,
 }) {
   const [localText, setLocalText] = useState(value ?? "");
+
+  const tilt = questionIndex % 2 === 0 ? "-1.2deg" : "0.8deg";
 
   const handleTextSubmit = () => {
     if (localText.trim() === "" && !isOptional) return;
@@ -57,27 +48,38 @@ export default function QuestionCard({
       className="w-full"
     >
       <div
-        className="rounded-3xl px-6 py-8 mx-4"
+        className="tape-top mx-4 px-6 py-8"
         style={{
-          background: "rgba(255,255,255,0.72)",
-          backdropFilter: "blur(20px)",
-          WebkitBackdropFilter: "blur(20px)",
+          background: "rgba(255,255,255,0.9)",
+          backdropFilter: "blur(18px)",
+          WebkitBackdropFilter: "blur(18px)",
+          borderRadius: "26px",
+          border: "2px solid rgba(240,82,125,0.14)",
           boxShadow:
-            "0 8px 32px rgba(244,114,182,0.13), 0 1.5px 8px rgba(192,132,252,0.1)",
-          border: "1.5px solid rgba(244,114,182,0.18)",
+            "0 4px 0 rgba(240,82,125,0.08), 0 12px 40px rgba(240,82,125,0.1)",
+          transform: `rotate(${tilt})`,
         }}
       >
         {/* Optional badge */}
         {isOptional && (
-          <span className="inline-block mb-3 text-xs font-700 px-3 py-1 rounded-full bg-fuchsia-50 text-fuchsia-400 border border-fuchsia-200">
-            Optional ✨
+          <span
+            className="font-hand inline-block mb-3 text-base px-3 py-0.5 rounded-full"
+            style={{
+              background: "#fff0f9",
+              border: "1.5px dashed rgba(240,82,125,0.35)",
+              color: "#f0527d",
+              transform: "rotate(-1deg)",
+              display: "inline-block",
+            }}
+          >
+            optional ✨
           </span>
         )}
 
-        {/* Question text */}
+        {/* Question text in handwriting font */}
         <p
-          className="text-gray-700 text-lg font-800 leading-snug mb-7"
-          style={{ fontFamily: "'Nunito', sans-serif" }}
+          className="font-hand text-2xl leading-snug mb-7"
+          style={{ color: "#333" }}
         >
           {question.question}
         </p>
@@ -91,34 +93,40 @@ export default function QuestionCard({
               value={localText}
               onChange={(e) => setLocalText(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Type your answer…"
+              placeholder="write here..."
               autoComplete="off"
-              className="input-glow w-full h-12 rounded-2xl border-2 border-pink-200 bg-white/60 px-4 text-base text-gray-700 placeholder-pink-300 font-600 transition-all focus:border-fuchsia-300"
-              style={{ fontFamily: "'Nunito', sans-serif" }}
+              className="input-human"
             />
             <div className="flex gap-3">
               <motion.button
-                whileTap={{ scale: 0.95 }}
+                whileTap={{ scale: 0.94 }}
                 whileHover={{ scale: 1.03 }}
                 onClick={handleTextSubmit}
                 disabled={!localText.trim() && !isOptional}
-                className="flex-1 h-12 rounded-2xl font-800 text-base text-white transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                className="font-hand flex-1 text-xl text-white rounded-2xl transition-all disabled:opacity-35"
                 style={{
-                  background:
-                    "linear-gradient(135deg, #f472b6 0%, #c084fc 100%)",
-                  boxShadow: "0 4px 15px rgba(244,114,182,0.35)",
+                  height: "50px",
+                  background: "linear-gradient(135deg, #f0527d 0%, #c084fc 100%)",
+                  boxShadow: "0 4px 0 rgba(240,82,125,0.3), 0 6px 16px rgba(240,82,125,0.2)",
+                  letterSpacing: "0.02em",
                 }}
               >
-                Next →
+                next →
               </motion.button>
               {isOptional && (
                 <motion.button
-                  whileTap={{ scale: 0.95 }}
+                  whileTap={{ scale: 0.94 }}
                   whileHover={{ scale: 1.03 }}
                   onClick={onSkip}
-                  className="h-12 px-5 rounded-2xl font-700 text-sm text-fuchsia-400 border-2 border-fuchsia-200 bg-fuchsia-50 transition-all hover:bg-fuchsia-100"
+                  className="font-hand text-lg px-5 rounded-2xl transition-all"
+                  style={{
+                    height: "50px",
+                    background: "#fff0f9",
+                    border: "1.5px dashed rgba(240,82,125,0.35)",
+                    color: "#f0527d",
+                  }}
                 >
-                  Skip
+                  skip
                 </motion.button>
               )}
             </div>
@@ -129,28 +137,30 @@ export default function QuestionCard({
         {question.type === "boolean" && (
           <div className="flex gap-4">
             <motion.button
-              whileTap={{ scale: 0.92 }}
-              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.9 }}
+              whileHover={{ scale: 1.06, rotate: "-2deg" }}
               onClick={() => handleBoolean(true)}
-              className="flex-1 h-14 rounded-2xl font-800 text-base text-white transition-all"
+              className="font-hand flex-1 text-xl text-white rounded-2xl"
               style={{
-                background: "linear-gradient(135deg, #34d399 0%, #059669 100%)",
-                boxShadow: "0 4px 15px rgba(52,211,153,0.35)",
+                height: "58px",
+                background: "linear-gradient(135deg, #4ade80 0%, #16a34a 100%)",
+                boxShadow: "0 4px 0 rgba(22,163,74,0.3), 0 6px 16px rgba(74,222,128,0.2)",
               }}
             >
-              Yes! 💚
+              yes!! 💚
             </motion.button>
             <motion.button
-              whileTap={{ scale: 0.92 }}
-              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.9 }}
+              whileHover={{ scale: 1.06, rotate: "2deg" }}
               onClick={() => handleBoolean(false)}
-              className="flex-1 h-14 rounded-2xl font-800 text-base text-white transition-all"
+              className="font-hand flex-1 text-xl text-white rounded-2xl"
               style={{
-                background: "linear-gradient(135deg, #f87171 0%, #dc2626 100%)",
-                boxShadow: "0 4px 15px rgba(248,113,113,0.35)",
+                height: "58px",
+                background: "linear-gradient(135deg, #fb7185 0%, #e11d48 100%)",
+                boxShadow: "0 4px 0 rgba(225,29,72,0.3), 0 6px 16px rgba(251,113,133,0.2)",
               }}
             >
-              Nope 🙈
+              nope 🙈
             </motion.button>
           </div>
         )}
