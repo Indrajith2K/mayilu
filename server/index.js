@@ -7,17 +7,30 @@ import Answer from "./models/Answer.js";
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/mayilu";
 
 app.use(cors());
 app.use(express.json());
 
-// ── Connect to MongoDB ──────────────────────────────────────────────
-mongoose
-  .connect(MONGO_URI)
-  .then(() => console.log("✅ MongoDB connected →", MONGO_URI))
-  .catch((err) => console.error("❌ MongoDB connection error:", err.message));
+// ── Lazy MongoDB connection (reused across serverless invocations) ────
+let isConnected = false;
+const connectDB = async () => {
+  if (isConnected) return;
+  await mongoose.connect(MONGO_URI);
+  isConnected = true;
+  console.log("✅ MongoDB connected →", MONGO_URI);
+};
+
+// Ensure DB is connected before every request
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (err) {
+    console.error("❌ MongoDB connection error:", err.message);
+    res.status(500).json({ error: "Database connection failed" });
+  }
+});
 
 // ── POST /api/answers  — save a completed quiz ──────────────────────
 app.post("/api/answers", async (req, res) => {
@@ -54,6 +67,11 @@ app.delete("/api/answers/:id", async (req, res) => {
 // ── Health check ──────────────────────────────────────────────────────
 app.get("/api/health", (_, res) => res.json({ status: "ok", db: mongoose.connection.readyState }));
 
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
-});
+// ── Local dev only: start HTTP server ────────────────────────────────
+if (process.env.NODE_ENV !== "production") {
+  const PORT = process.env.PORT || 5000;
+  app.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));
+}
+
+export default app;
+

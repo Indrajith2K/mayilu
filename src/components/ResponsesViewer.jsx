@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
-const API = "http://localhost:5000/api";
+const API = "/api";
 
 const QUESTION_LABELS = {
   icecream: "Fav Ice Cream 🍦",

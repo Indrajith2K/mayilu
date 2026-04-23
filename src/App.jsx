@@ -7,7 +7,7 @@ import HeartBurst from "./components/HeartBurst";
 import ResultScreen from "./components/ResultScreen";
 import ResponsesViewer from "./components/ResponsesViewer";
 
-const API = "http://localhost:5000/api";
+const API = "/api";
 
 function getVisibleQuestions(answers) {
   return questions.filter((q) => {
